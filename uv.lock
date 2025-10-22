@@ -28,20 +28,21 @@ wheels = [
 
 [[package]]
 name = "azure-core"
-version = "1.36.0"
+version = "1.29.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
+    { name = "six" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0a/c4/d4ff3bc3ddf155156460bff340bbe9533f99fac54ddea165f35a8619f162/azure_core-1.36.0.tar.gz", hash = "sha256:22e5605e6d0bf1d229726af56d9e92bc37b6e726b141a18be0b4d424131741b7", size = 351139 }
+sdist = { url = "https://files.pythonhosted.org/packages/fa/19/43a9eb812b4d6071fdc2c55640318f7eb5a1be8dbd3b6f9d96a1996e1bb6/azure-core-1.29.4.tar.gz", hash = "sha256:500b3aa9bf2e90c5ccc88bb105d056114ca0ce7d0ce73afb8bc4d714b2fc7568", size = 260048 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b1/3c/b90d5afc2e47c4a45f4bba00f9c3193b0417fad5ad3bb07869f9d12832aa/azure_core-1.36.0-py3-none-any.whl", hash = "sha256:fee9923a3a753e94a259563429f3644aaf05c486d45b1215d098115102d91d3b", size = 213302 },
+    { url = "https://files.pythonhosted.org/packages/98/3a/d53e2b8a75c448ef45d7ae4b0659eb6c0d48978f25a709e2a39894a48704/azure_core-1.29.4-py3-none-any.whl", hash = "sha256:b03261bcba22c0b9290faf9999cedd23e849ed2577feee90515694cea6bc74bf", size = 192407 },
 ]
 
 [[package]]
 name = "azure-identity"
-version = "1.25.1"
+version = "1.17.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "azure-core" },
@@ -50,9 +51,9 @@ dependencies = [
     { name = "msal-extensions" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/06/8d/1a6c41c28a37eab26dc85ab6c86992c700cd3f4a597d9ed174b0e9c69489/azure_identity-1.25.1.tar.gz", hash = "sha256:87ca8328883de6036443e1c37b40e8dc8fb74898240f61071e09d2e369361456", size = 279826 }
+sdist = { url = "https://files.pythonhosted.org/packages/51/c9/f7e3926686a89670ce641b360bd2da9a2d7a12b3e532403462d99f81e9d5/azure-identity-1.17.1.tar.gz", hash = "sha256:32ecc67cc73f4bd0595e4f64b1ca65cd05186f4fe6f98ed2ae9f1aa32646efea", size = 246652 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/7b/5652771e24fff12da9dde4c20ecf4682e606b104f26419d139758cc935a6/azure_identity-1.25.1-py3-none-any.whl", hash = "sha256:e9edd720af03dff020223cd269fa3a61e8f345ea75443858273bcb44844ab651", size = 191317 },
+    { url = "https://files.pythonhosted.org/packages/49/83/a777861351e7b99e7c84ff3b36bab35e87b6e5d36e50b6905e148c696515/azure_identity-1.17.1-py3-none-any.whl", hash = "sha256:db8d59c183b680e763722bfe8ebc45930e6c57df510620985939f7f3191e0382", size = 173229 },
 ]
 
 [[package]]
@@ -198,14 +199,16 @@ dependencies = [
     { name = "azure-identity" },
     { name = "deltalake" },
     { name = "polars" },
+    { name = "polars-hash" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "azure-core", specifier = ">=1.29.4" },
-    { name = "azure-identity", specifier = ">=1.17.1" },
+    { name = "azure-core", specifier = "==1.29.4" },
+    { name = "azure-identity", specifier = "==1.17.1" },
     { name = "deltalake", specifier = ">=1.2.1" },
     { name = "polars", specifier = ">=1.34.0" },
+    { name = "polars-hash", specifier = ">=0.5.5" },
 ]
 
 [[package]]
@@ -253,6 +256,26 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a1/3e/35fcf5bf51404371bb172b289a5065778dc97adca4416e199c294125eb05/polars-1.34.0.tar.gz", hash = "sha256:5de5f871027db4b11bcf39215a2d6b13b4a80baf8a55c5862d4ebedfd5cd4013", size = 684309 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6b/80/1791ac226bb989bef30fe8fde752b2021b6ec5dfd6e880262596aedf4c05/polars-1.34.0-py3-none-any.whl", hash = "sha256:40d2f357b4d9e447ad28bd2c9923e4318791a7c18eb68f31f1fbf11180f41391", size = 772686 },
+]
+
+[[package]]
+name = "polars-hash"
+version = "0.5.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "polars" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d1/4f/0bafd0d1ec03693843440ff4a91f33257f27869f9cec533ab8a9b9ab4ecd/polars_hash-0.5.5.tar.gz", hash = "sha256:70335c6a841e215829c830afc66d323d7363f3fcc7c08fd9300846e4839ec32a", size = 27527 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f4/d8/0ff6364293677cbc1168b97dadd8fb0d76bd6060813cd315fafce8672327/polars_hash-0.5.5-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:4c2b571c2952a95880ac90a32e1da5bb6c48844dcf82a2e092ecef59cd91d4a1", size = 4446646 },
+    { url = "https://files.pythonhosted.org/packages/1f/05/3df6f4328a61415f53e333e873c7f8034401b11b1d5211ed5efb38939341/polars_hash-0.5.5-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:57a219d98b9a8e0a0115fb6e6e90d588ddc1687f164c2e4cf6cd7a42721f414c", size = 4110262 },
+    { url = "https://files.pythonhosted.org/packages/b3/d2/d3c86f8dcffbea2c601ea66caac3fa5b0b49b084d1dfd695a12c08206b53/polars_hash-0.5.5-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e4e85594966be84140c636a48df194399682eb622df80b336f80d8c9658599b8", size = 4602031 },
+    { url = "https://files.pythonhosted.org/packages/0d/ba/760f86b1e2f23a6ba2b99912eb569d5ebfed04956ee40ab383475563cec5/polars_hash-0.5.5-cp38-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:5235f9758ba409011d9df09e0e670dd59f6ba01b801a1a50cd2151b7444d5751", size = 4717710 },
+    { url = "https://files.pythonhosted.org/packages/58/28/02cf1baf80ce454c00513cd4e40b9c9fe5198460abf9d91be16b46d44aae/polars_hash-0.5.5-cp38-abi3-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d59d0aa1973f722dc31c36cd70f708df6ec590635c68c66857b213f7313a668c", size = 5322156 },
+    { url = "https://files.pythonhosted.org/packages/61/d8/28c946c6d923dcd14d12155aad20d0d6bd24b643d081afab5f708f86c4a1/polars_hash-0.5.5-cp38-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:ff20bd2a0dd14628e40154a3055e27cb1f258f2ed1db3468c2a9ed7f6e2c5510", size = 5459511 },
+    { url = "https://files.pythonhosted.org/packages/1a/0d/0467d7de92501b2b883cabefb165cea8fb0de7c5bd1eba5a76e1bc5700eb/polars_hash-0.5.5-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a07ce1c6d169b7c18060e062ca839477d8253d1269d42b78b85d664fdce5c338", size = 5089978 },
+    { url = "https://files.pythonhosted.org/packages/c7/0f/84fd1416d146ae3adc2a4b36cd80047ad00a0325ec4d3cf692c9b4a74066/polars_hash-0.5.5-cp38-abi3-win32.whl", hash = "sha256:80d9d95cc2787eabe44b934c383c01fcccfd92f506735b2c0abc53a47f194024", size = 3793114 },
+    { url = "https://files.pythonhosted.org/packages/42/ea/e92fe639db605b7d932a57e33330a4597fbc40a47f061221d0e56e96c365/polars_hash-0.5.5-cp38-abi3-win_amd64.whl", hash = "sha256:7233f75b65feee40ffcb565a63a18fb8a47dfe1f6eea4d3fa4f6c8543274be00", size = 4189410 },
 ]
 
 [[package]]
@@ -305,6 +328,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c9/74/b3ff8e6c8446842c3f5c837e9c3dfcfe2018ea6ecef224c710c85ef728f4/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf", size = 134517 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6", size = 64738 },
+]
+
+[[package]]
+name = "six"
+version = "1.17.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050 },
 ]
 
 [[package]]
