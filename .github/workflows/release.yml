@@ -63,6 +63,22 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for setuptools-scm and tags
+    
+    - name: Get latest tag
+      id: get_tag
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          # For manual runs, use the latest tag
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+        else
+          # For tag pushes, use the pushed tag
+          echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
@@ -72,7 +88,8 @@ jobs:
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
+        tag_name: ${{ steps.get_tag.outputs.tag }}
         files: dist/*
         generate_release_notes: true
         draft: false
-        prerelease: ${{ contains(github.ref_name, 'rc') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') }}
+        prerelease: ${{ contains(steps.get_tag.outputs.tag, 'rc') || contains(steps.get_tag.outputs.tag, 'alpha') || contains(steps.get_tag.outputs.tag, 'beta') }}
