@@ -13,7 +13,13 @@ from .write import (
     upsert
 )
 
-__version__ = "0.1.0"
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("fabric-utilities")
+except PackageNotFoundError:
+    __version__ = "unknown"
+
 __all__ = [
     "get_access_token",
     "get_azure_storage_access_token", 

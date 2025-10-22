@@ -156,8 +156,7 @@ wheels = [
 
 [[package]]
 name = "fabric-utilities"
-version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "azure-core" },
     { name = "azure-identity" },
