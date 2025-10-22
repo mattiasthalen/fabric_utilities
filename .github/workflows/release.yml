@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"  # Trigger on version tags like v1.0.0, v0.1.0, etc.
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: uv sync
+    
+    - name: Run tests
+      run: |
+        # Add your test commands here when you have tests
+        # For now, just verify the package can be imported
+        uv run python -c "import fabric_utilities; print('Package imports successfully')"
+    
+    - name: Build package
+      run: uv build
+    
+    - name: Verify build
+      run: |
+        uv run pip install dist/*.whl
+        uv run python -c "import fabric_utilities; print(f'Installed version: {fabric_utilities.__version__}')"
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+    
+    - name: Set up Python
+      run: uv python install 3.11
+    
+    - name: Install dependencies
+      run: uv sync
+    
+    - name: Build package
+      run: uv build
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/*
+        generate_release_notes: true
+        draft: false
+        prerelease: ${{ contains(github.ref_name, 'rc') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') }}

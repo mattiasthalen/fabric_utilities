@@ -11,8 +11,24 @@ A Python package providing utilities for working with Microsoft Fabric, includin
 
 ## Installation
 
+Install directly from GitHub:
+
 ```bash
-pip install fabric-utilities
+pip install git+https://github.com/mattiasthalen/fabric_utilities.git
+```
+
+Or install a specific version/tag:
+
+```bash
+pip install git+https://github.com/mattiasthalen/fabric_utilities.git@v0.1.0
+```
+
+For development:
+
+```bash
+git clone https://github.com/mattiasthalen/fabric_utilities.git
+cd fabric_utilities
+uv sync
 ```
 
 ## Usage
