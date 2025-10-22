@@ -21,8 +21,8 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "azure-core>=1.36.0",
-    "azure-identity>=1.25.1",
+    "azure-core==1.29.4",
+    "azure-identity==1.17.1",
     "deltalake==0.18.2",
     "polars==1.6.0",
 ]
