@@ -202,8 +202,8 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "azure-core", specifier = ">=1.36.0" },
-    { name = "azure-identity", specifier = ">=1.25.1" },
+    { name = "azure-core", specifier = ">=1.29.4" },
+    { name = "azure-identity", specifier = ">=1.17.1" },
     { name = "deltalake", specifier = ">=1.2.1" },
     { name = "polars", specifier = ">=1.34.0" },
 ]
