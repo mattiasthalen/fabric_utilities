@@ -1,7 +1,7 @@
 [project]
 name = "fabric-utilities"
 version = "0.1.0"
-description = "Add your description here"
+description = "Python utilities for Microsoft Fabric - authentication, Delta Lake, and Parquet operations"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
