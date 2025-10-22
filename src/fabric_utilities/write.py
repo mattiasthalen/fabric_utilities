@@ -1,5 +1,5 @@
-
 import polars as pl
+import time
 import typing as t
 
 from deltalake.exceptions import TableNotFoundError
@@ -9,7 +9,7 @@ from fabric_utilities.auth import get_storage_options
 def _ensure_dataframe(df: pl.DataFrame | pl.LazyFrame) -> pl.DataFrame:
     """
     Convert LazyFrame to DataFrame if needed.
-    
+
     >>> import polars as pl
     >>> df = pl.DataFrame({"a": [1, 2], "b": [3, 4]})
     >>> result = _ensure_dataframe(df)
@@ -28,7 +28,7 @@ def _ensure_dataframe(df: pl.DataFrame | pl.LazyFrame) -> pl.DataFrame:
 def _normalize_columns(columns: str | list[str] | None) -> list[str]:
     """
     Normalize column specification to list of strings.
-    
+
     >>> _normalize_columns(None)
     []
     >>> _normalize_columns("single_column")
@@ -48,7 +48,7 @@ def _normalize_columns(columns: str | list[str] | None) -> list[str]:
 def _validate_columns_exist(df: pl.DataFrame, columns: list[str], column_type: str) -> None:
     """
     Validate that specified columns exist in the DataFrame.
-    
+
     >>> import polars as pl
     >>> df = pl.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
     >>> _validate_columns_exist(df, ["a", "b"], "Test")  # Should not raise
@@ -59,7 +59,7 @@ def _validate_columns_exist(df: pl.DataFrame, columns: list[str], column_type: s
     """
     if not columns:
         return
-    
+
     missing_columns = [col for col in columns if col not in df.columns]
     if missing_columns:
         raise ValueError(
@@ -71,7 +71,7 @@ def _validate_columns_exist(df: pl.DataFrame, columns: list[str], column_type: s
 def _build_merge_predicate(primary_key_columns: list[str]) -> str:
     """
     Build the merge predicate for joining source and target tables.
-    
+
     >>> _build_merge_predicate(["id"])
     'target.id = source.id'
     >>> _build_merge_predicate(["id", "name"])
@@ -92,7 +92,7 @@ def _get_predicate_update_columns(
 ) -> list[str]:
     """
     Get columns to use in update predicate (columns that trigger updates when changed).
-    
+
     >>> _get_predicate_update_columns(
     ...     ["id", "name", "email", "created_at", "updated_at"],
     ...     ["id"],
@@ -112,7 +112,7 @@ def _get_predicate_update_columns(
 def _build_update_predicate(predicate_update_columns: list[str]) -> str:
     """
     Build predicate that determines when matched rows should be updated.
-    
+
     >>> predicate = _build_update_predicate(["name"])
     >>> "target.name != source.name" in predicate
     True
@@ -120,7 +120,7 @@ def _build_update_predicate(predicate_update_columns: list[str]) -> str:
     True
     >>> "target.name IS NOT NULL AND source.name IS NULL" in predicate
     True
-    
+
     >>> predicate = _build_update_predicate(["name", "email"])
     >>> expected = '''
     ...                 (
@@ -129,7 +129,7 @@ def _build_update_predicate(predicate_update_columns: list[str]) -> str:
     ...                     OR target.name IS NULL AND source.name IS NOT NULL
     ...                     OR target.name IS NOT NULL AND source.name IS NULL
     ...                 )
-    ...              AND 
+    ...              AND
     ...                 (
     ...                     1 = 1
     ...                     AND target.email != source.email
@@ -139,7 +139,7 @@ def _build_update_predicate(predicate_update_columns: list[str]) -> str:
     ...             '''
     >>> predicate == expected
     True
-    
+
     >>> _build_update_predicate([])
     ''
     """
@@ -164,7 +164,7 @@ def _get_update_columns(
 ) -> list[str]:
     """
     Get columns that should be updated (excluding primary keys and excluded columns).
-    
+
     >>> _get_update_columns(
     ...     ["id", "name", "email", "updated_at"],
     ...     ["id"],
@@ -183,7 +183,7 @@ def _get_update_columns(
 def _build_update_mapping(update_columns: list[str]) -> dict[str, str]:
     """
     Build the column mapping for updates.
-    
+
     >>> _build_update_mapping(["name", "email"])
     {'target.name': 'source.name', 'target.email': 'source.email'}
     >>> _build_update_mapping(["single_col"])
@@ -197,7 +197,7 @@ def _build_update_mapping(update_columns: list[str]) -> dict[str, str]:
 def _build_delta_merge_options(merge_predicate: str) -> dict[str, t.Any]:
     """
     Build delta merge options dictionary.
-    
+
     >>> options = _build_delta_merge_options("target.id = source.id")
     >>> options["predicate"]
     'target.id = source.id'
@@ -222,15 +222,15 @@ def _execute_delta_merge(
     delta_merge_options: dict[str, t.Any],
     when_matched_update_predicates: str,
     when_matched_update_columns: dict[str, str],
-) -> dict | None:
+) -> dict:
     """
     Execute the Delta Lake merge operation with specified conditions.
-    
+
     Performs a three-way merge operation:
     1. Updates matched rows when predicate conditions are met
     2. Inserts all non-matched rows from source
     3. Leaves unmatched target rows unchanged
-    
+
     Args:
         df: Source DataFrame to merge
         table_uri: Target Delta table URI
@@ -238,10 +238,10 @@ def _execute_delta_merge(
         delta_merge_options: Merge configuration (predicate, aliases)
         when_matched_update_predicates: SQL conditions for when to update matched rows
         when_matched_update_columns: Column mapping for updates (target -> source)
-        
+
     Returns:
         Result dictionary from the Delta merge operation
-        
+
     Raises:
         Various Delta/Polars exceptions for merge failures
     """
@@ -266,14 +266,14 @@ def overwrite(
     df: pl.DataFrame | pl.LazyFrame,
     schema_mode: t.Literal['merge', 'overwrite'] | None = "merge",
     partition_by: str | list[str] | None = None,
-) -> dict | None:
+) -> dict:
     """
     Overwrite a Delta table with the provided DataFrame.
-    
+
     Completely replaces the target table with new data. Handles schema
     evolution based on the schema_mode parameter. Automatically manages
     Fabric authentication for abfss:// URIs.
-    
+
     Args:
         table_uri: URI of the target Delta table (e.g., "abfss://..." or local path)
         df: Source DataFrame or LazyFrame to write
@@ -282,17 +282,24 @@ def overwrite(
                     - "overwrite": Replace schema entirely
                     - None: Use Delta Lake default behavior
         partition_by: Column(s) to partition the table by. Can be string or list of strings.
-                     
+
     Returns:
-        Result dictionary from the Delta write operation, or None
-        
+        Dictionary with operation statistics including number of rows written
+
     Raises:
         Various Delta/Polars exceptions for write failures or auth issues
     """
+
+
     storage_options: dict | None = get_storage_options(table_uri)
     df = _ensure_dataframe(df)
 
-    result: dict | None = df.write_delta(
+    # Capture statistics
+    start_time = time.time()
+    num_source_rows = len(df)
+
+    # Perform the overwrite operation (returns None)
+    df.write_delta(
         target=table_uri,
         mode="overwrite",
         storage_options=storage_options,
@@ -301,6 +308,26 @@ def overwrite(
             "partition_by": partition_by,
         },
     )
+
+    end_time = time.time()
+    execution_time_ms = int((end_time - start_time) * 1000)
+
+    # Build statistics dictionary similar to merge operations
+    result = {
+        "num_source_rows": num_source_rows,
+        "num_target_rows_inserted": num_source_rows,  # All rows are "inserted" in overwrite
+        "num_target_rows_updated": 0,  # No updates in overwrite mode
+        "num_target_rows_deleted": 0,  # Delta handles deletions internally
+        "num_target_rows_copied": 0,   # No rows copied in overwrite mode
+        "num_output_rows": num_source_rows,
+        "execution_time_ms": execution_time_ms,
+        "operation_mode": "overwrite",
+        "schema_mode": schema_mode,
+    }
+
+    # Add partition information if provided
+    if partition_by:
+        result["partition_by"] = partition_by if isinstance(partition_by, list) else [partition_by]
 
     return result
 
@@ -312,10 +339,10 @@ def upsert(
     update_exclusion_columns: str | list[str] | None = None,
     predicate_exclusion_columns: str | list[str] | None = None,
     partition_by: str | list[str] | None = None,
-) -> dict | None:
+) -> dict:
     """
     Upsert data into a Delta table using merge operation.
-    
+
     Args:
         table_uri: URI of the target Delta table
         df: Source DataFrame or LazyFrame
@@ -323,23 +350,23 @@ def upsert(
         update_exclusion_columns: Columns to exclude from updates (but include in inserts)
         predicate_exclusion_columns: Columns to exclude from update predicate logic
         partition_by: Columns to partition by (used if table needs to be created)
-    
+
     Returns:
         Result dictionary from the delta operation
     """
     storage_options: dict | None = get_storage_options(table_uri)
-    
+
     # Normalize inputs
     primary_key_columns = _normalize_columns(primary_key_columns)
     update_exclusion_columns = _normalize_columns(update_exclusion_columns)
     predicate_exclusion_columns = _normalize_columns(predicate_exclusion_columns)
     df = _ensure_dataframe(df)
-    
+
     # Validate inputs
     _validate_columns_exist(df, primary_key_columns, "Primary key")
     all_exclusion_columns: list[str] = update_exclusion_columns + predicate_exclusion_columns
     _validate_columns_exist(df, all_exclusion_columns, "Exclusion")
-    
+
     # Build merge components
     merge_predicate: str = _build_merge_predicate(primary_key_columns)
 
@@ -355,7 +382,7 @@ def upsert(
 
     # Execute merge operation
     try:
-        result: dict | None = _execute_delta_merge(
+        result: dict = _execute_delta_merge(
             df=df,
             table_uri=table_uri,
             storage_options=storage_options,
@@ -365,11 +392,11 @@ def upsert(
         )
     except TableNotFoundError:
         # Table doesn't exist, create it with overwrite
-        result: dict | None = overwrite(
+        result: dict = overwrite(
             table_uri=table_uri,
             df=df,
             schema_mode="overwrite",
             partition_by=partition_by,
         )
-    
+
     return result
