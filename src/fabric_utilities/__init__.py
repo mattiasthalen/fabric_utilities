@@ -5,7 +5,8 @@ from .auth import (
 )
 from .read import (
     read_delta,
-    read_parquet
+    read_parquet,
+    read_parquets
 )
 from .write import (
     overwrite,
