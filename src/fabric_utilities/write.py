@@ -5,6 +5,38 @@ import typing as t
 from deltalake.exceptions import TableNotFoundError
 from fabric_utilities.auth import get_storage_options
 
+def _quote_identifier(
+    identifier: str,
+    quote_character: str = '"'
+) -> str:
+    """
+    Quote an identifier by wrapping it with the specified quote character.
+    
+    Strips any existing quote characters from the identifier before adding new ones
+    to prevent double-quoting.
+    
+    Args:
+        identifier: The identifier string to quote
+        quote_character: The character to use for quoting (default: double quote)
+    
+    Returns:
+        The quoted identifier string
+    
+    Examples:
+        >>> _quote_identifier("my_table")
+        '"my_table"'
+        >>> _quote_identifier("my_column", "'")
+        "'my_column'"
+        >>> _quote_identifier('"already_quoted"')
+        '"already_quoted"'
+        >>> _quote_identifier("'single_quoted'", "'")
+        "'single_quoted'"
+        >>> _quote_identifier("column_name", "`")
+        '`column_name`'
+        >>> _quote_identifier("  spaced  ")
+        '"  spaced  "'
+    """
+    return f"{quote_character}{identifier.strip(quote_character)}{quote_character}"
 
 def _ensure_dataframe(df: pl.DataFrame | pl.LazyFrame) -> pl.DataFrame:
     """
@@ -73,14 +105,14 @@ def _build_merge_predicate(primary_key_columns: list[str]) -> str:
     Build the merge predicate for joining source and target tables.
 
     >>> _build_merge_predicate(["id"])
-    'target.id = source.id'
+    'target."id" = source."id"'
     >>> _build_merge_predicate(["id", "name"])
-    'target.id = source.id AND target.name = source.name'
+    'target."id" = source."id" AND target."name" = source."name"'
     >>> _build_merge_predicate([])
     ''
     """
     return " AND ".join(
-        [f"target.{column} = source.{column}" for column in primary_key_columns]
+        [f"target.{_quote_identifier(column)} = source.{_quote_identifier(column)}" for column in primary_key_columns]
     )
 
 
@@ -114,21 +146,21 @@ def _build_update_predicate(predicate_update_columns: list[str]) -> str:
     Build predicate that determines when matched rows should be updated.
 
     >>> predicate = _build_update_predicate(["name"])
-    >>> "target.name != source.name" in predicate
+    >>> 'target."name" != source."name"' in predicate
     True
-    >>> "target.name IS NULL AND source.name IS NOT NULL" in predicate
+    >>> 'target."name" IS NULL AND source."name" IS NOT NULL' in predicate
     True
-    >>> "target.name IS NOT NULL AND source.name IS NULL" in predicate
+    >>> 'target."name" IS NOT NULL AND source."name" IS NULL' in predicate
     True
 
     >>> predicate = _build_update_predicate(["name", "email"])
-    >>> "target.name != source.name" in predicate
+    >>> 'target."name" != source."name"' in predicate
     True
-    >>> "target.email != source.email" in predicate
+    >>> 'target."email" != source."email"' in predicate
     True
-    >>> predicate.count("target.name") == 3  # Should appear 3 times (!=, IS NULL, IS NOT NULL)
+    >>> predicate.count('target."name"') == 3  # Should appear 3 times (!=, IS NULL, IS NOT NULL)
     True
-    >>> predicate.count("target.email") == 3  # Should appear 3 times (!=, IS NULL, IS NOT NULL)
+    >>> predicate.count('target."email"') == 3  # Should appear 3 times (!=, IS NULL, IS NOT NULL)
     True
 
     >>> _build_update_predicate([])
@@ -138,9 +170,9 @@ def _build_update_predicate(predicate_update_columns: list[str]) -> str:
         f"""
                 (
                     1 = 1
-                    AND target.{column} != source.{column}
-                    OR target.{column} IS NULL AND source.{column} IS NOT NULL
-                    OR target.{column} IS NOT NULL AND source.{column} IS NULL
+                    AND target.{_quote_identifier(column)} != source.{_quote_identifier(column)}
+                    OR target.{_quote_identifier(column)} IS NULL AND source.{_quote_identifier(column)} IS NOT NULL
+                    OR target.{_quote_identifier(column)} IS NOT NULL AND source.{_quote_identifier(column)} IS NULL
                 )
             """
         for column in predicate_update_columns
@@ -176,22 +208,22 @@ def _build_update_mapping(update_columns: list[str]) -> dict[str, str]:
     Build the column mapping for updates.
 
     >>> _build_update_mapping(["name", "email"])
-    {'target.name': 'source.name', 'target.email': 'source.email'}
+    {'target."name"': 'source."name"', 'target."email"': 'source."email"'}
     >>> _build_update_mapping(["single_col"])
-    {'target.single_col': 'source.single_col'}
+    {'target."single_col"': 'source."single_col"'}
     >>> _build_update_mapping([])
     {}
     """
-    return {f"target.{column}": f"source.{column}" for column in update_columns}
+    return {f"target.{_quote_identifier(column)}": f"source.{_quote_identifier(column)}" for column in update_columns}
 
 
 def _build_delta_merge_options(merge_predicate: str) -> dict[str, t.Any]:
     """
     Build delta merge options dictionary.
 
-    >>> options = _build_delta_merge_options("target.id = source.id")
+    >>> options = _build_delta_merge_options('target."id" = source."id"')
     >>> options["predicate"]
-    'target.id = source.id'
+    'target."id" = source."id"'
     >>> options["source_alias"]
     'source'
     >>> options["target_alias"]
