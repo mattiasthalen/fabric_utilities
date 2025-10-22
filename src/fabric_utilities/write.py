@@ -299,6 +299,7 @@ def overwrite(
         delta_write_options={
             "schema_mode": schema_mode,
             "partition_by": partition_by,
+            "engine": "rust",
         },
     )
 
