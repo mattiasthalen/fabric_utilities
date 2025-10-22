@@ -82,7 +82,6 @@ def get_storage_options(
         ClientAuthenticationError: If Azure authentication fails
     """
     storage_options: dict | None = {
-        "allow_unsafe_rename": "true",
         "use_fabric_endpoint": "true",
         "bearer_token": get_azure_storage_access_token(),
         "allow_invalid_certificates": "true"
