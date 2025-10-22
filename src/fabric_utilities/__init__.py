@@ -7,6 +7,10 @@ from .read import (
     read_delta,
     read_parquet
 )
+from .write import (
+    overwrite,
+    upsert
+)
 
 __version__ = "0.1.0"
 __all__ = [
@@ -14,5 +18,7 @@ __all__ = [
     "get_azure_storage_access_token", 
     "get_storage_options",
     "read_delta",
-    "read_parquet"
+    "read_parquet",
+    "overwrite",
+    "upsert"
 ]
