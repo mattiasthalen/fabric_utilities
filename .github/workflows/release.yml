@@ -5,6 +5,12 @@ on:
     tags:
       - "v*"  # Trigger on version tags like v1.0.0, v0.1.0, etc.
   workflow_dispatch:  # Allow manual triggering from GitHub UI
+    inputs:
+      skip_tests:
+        description: 'Skip tests during release'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -12,6 +18,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # Skip tests if manually requested or if commit message contains [skip tests]
+    if: ${{ !inputs.skip_tests && !contains(github.event.head_commit.message, '[skip tests]') }}
     strategy:
       matrix:
         python-version: ["3.11"]
@@ -34,6 +42,8 @@ jobs:
 
   build:
     needs: test
+    # Make build conditional - run if tests pass OR if tests are skipped
+    if: ${{ always() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     
     steps:
