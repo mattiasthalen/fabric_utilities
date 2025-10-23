@@ -54,6 +54,7 @@ def _get_target_table_columns(table_uri: str) -> list[str] | None:
         >>> import tempfile
         >>> import os
         >>> import platform
+        >>> # Use C:/temp on Windows to avoid unicode issues, /tmp on Linux
         >>> if platform.system() == "Windows":
         ...     base_temp = "C:/temp"
         ...     os.makedirs(base_temp, exist_ok=True)
@@ -461,14 +462,15 @@ def upsert(
         >>> import polars as pl
         >>> import tempfile
         >>> import os
-        
-        # Test 1: Create new table with upsert (using C:/temp to avoid unicode issues)
         >>> import platform
+        >>> # Use C:/temp on Windows to avoid unicode issues, /tmp on Linux
         >>> if platform.system() == "Windows":
         ...     base_temp = "C:/temp"
         ...     os.makedirs(base_temp, exist_ok=True)
         ... else:
         ...     base_temp = "/tmp"
+        
+        # Test 1: Create new table with upsert
         >>> with tempfile.TemporaryDirectory(dir=base_temp) as tmpdir:
         ...     table_path = os.path.join(tmpdir, "test_table")
         ...     df1 = pl.DataFrame({"id": [1, 2], "name": ["Alice", "Bob"]})
@@ -502,7 +504,7 @@ def upsert(
         (True, True, True)
         
         # Test 3: Primary key validation logic (tested via direct validation)
-        >>> # Since doctest has timing issues with table persistence, test the validation logic directly
+        >>> # Test the validation logic directly without file system operations
         >>> target_cols = ["id", "name"]  # Simulate existing table columns
         >>> primary_keys = ["user_id"]    # Simulate requested primary key
         >>> missing_pks = [col for col in primary_keys if col not in target_cols]
